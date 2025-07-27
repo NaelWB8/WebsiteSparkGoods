@@ -1,16 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
   const navbar = document.querySelector('.navbar');
+  const hamburger = document.querySelector('#mobile-menu');
+  const navMenu = document.querySelector('.navbar__menu');
 
-  // Mobile menu toggle
-  const menu = document.getElementById('mobile-menu');
-  const menuLinks = document.querySelector('.navbar__menu');
-
-  if (menu) {
-    menu.addEventListener('click', () => {
-      menu.classList.toggle('is-active');
-      menuLinks.classList.toggle('active');
-    });
-  }
+  // Hamburger menu toggle
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
+  });
 
   // Navbar scroll effect
   window.addEventListener('scroll', () => {
@@ -18,6 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
       navbar.classList.add('scrolled');
     } else {
       navbar.classList.remove('scrolled');
+    }
+  });
+
+  window.addEventListener("scroll", function () {
+    const hamburgerBars = document.querySelectorAll(".hamburger .bar");
+    if (window.scrollY > 0) {
+      hamburgerBars.forEach(bar => bar.classList.add("scrolled"));
+    } else {
+      hamburgerBars.forEach(bar => bar.classList.remove("scrolled"));
     }
   });
 
