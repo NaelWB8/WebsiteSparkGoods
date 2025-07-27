@@ -1,0 +1,445 @@
+/* Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Kumbh Sans', sans-serif;
+  background-color: #525599;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 18px 0;
+  z-index: 1000;
+  background: transparent;
+  transition: all 0.4s ease;
+}
+.navbar.scrolled {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 8px 0;
+}
+.navbar__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 50px;
+}
+#navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.logo-img { height: 50px; }
+.logo-text {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+.navbar__menu {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+}
+.navbar__links,
+#navbar__logo { transition: 0.3s; }
+.navbar__links {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+.navbar__links:hover,
+.button:hover { color: #3b82f6; }
+.navbar.scrolled .navbar__links,
+.navbar.scrolled .logo-text { color: #525599; }
+.navbar.scrolled .navbar__links:hover { color: black; }
+#donate__navbar {
+  padding: 0.5rem 2rem;
+  background: #525599;
+  color: #fff;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+/* Hero */
+.hero {
+  background: rgba(0,0,0,0.3) url('images/Sparkgoods 2.jpeg') center/cover no-repeat;
+  background-blend-mode: darken;
+  height: 97.5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+}
+.hero__content h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: -0.5rem;
+}
+.hero__content p {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.main__btn {
+  padding: 0.75rem 2.5rem;
+  background: #525599;
+  color: #fff;
+  border-radius: 50px;
+  font-weight: 300;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.main__btn:hover { background: #2563eb; }
+
+/* Slider */
+
+.impact-slider-section {
+  background: white;
+  padding: 3rem 0;
+  display: flex;
+  justify-content: center;
+}
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+}
+.slider-box {
+  width: 350px;
+  height: 250px;
+  background: #525599;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.slider-box img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.arrow {
+  background: #525599;
+  color: white;
+  border: none;
+  font-size: 2rem;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.arrow:hover { background: #3e3f7d; }
+
+/* Section Base */
+.section__container {
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+.section__container h2 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+.section__container p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2rem;
+  background: #525599;
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: auto;
+  min-height: 400px;
+}
+
+.impact-text {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+}
+
+.impact-text h2 {
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 0.5rem;
+  margin-left: 4rem;
+}
+
+.impact-text p {
+  font-size: 1.1rem;
+  color: #fff;
+  margin-left: 4rem;
+}
+
+.impact-slider {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.slider-box {
+  width: 100%;
+  max-width: 500px;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.slider-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.arrow {
+  font-size: 2rem;
+  background: #525599;
+  color: white;
+  border-radius: 50%;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.impact-stats {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* center vertically */
+  align-items: center;
+  gap: 2rem; /* spacing between items */
+  height: 100%; /* fill available height */
+  padding: 1rem;
+  margin-top: 5rem;
+}
+
+
+.impact-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+}
+
+.impact-card {
+  text-align: center;
+  color: white;
+}
+
+.impact-label {
+  font-size: 1rem;
+  color: #fff;
+  text-align: center;
+}
+
+
+/* Programs */
+.programs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.program {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  padding: 1.8rem;
+  transition: 0.3s;
+}
+.program:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.program h3 {
+  font-size: 1.4rem;
+  color: #525599;
+}
+.program p { color: #666; }
+
+/* Donate */
+.donate {
+  background: #fff;
+  padding: 4rem 2rem;
+  text-align: center;
+  height: 100vh;
+}
+.donate h2 {
+  color: #525599;
+  padding-top: 3rem;
+}
+.donate p {
+  padding: 0 20rem;
+}
+.donate .button {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  background: #525599;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+}
+.qris-code {
+  max-width: 250px;
+  margin: 2rem auto;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+/* Footer */
+.footer {
+  background: #1f2937;
+  color: #fff;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 4rem;
+  letter-spacing: 0.5px;
+}
+
+/* Financials Page */
+.financials {
+  background: white;
+  padding: 4rem 2rem;
+}
+.financials h2 {
+  color: #525599;
+  margin-bottom: 1rem;
+}
+.financials p {
+  margin-bottom: 2rem;
+  color: black;
+}
+.financials__iframe {
+  margin-top: 2rem;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+/* Contact Page*/
+
+.contact-hero h1 {
+  font-size: 2.5rem;
+  color: white;
+  text-align: center;
+  padding: 4rem auto;
+}
+
+.contact-hero p {
+  font-size: 1.2rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.contact-hero {
+  background: rgba(0,0,0,0.3) url('images/Sparkgoods 2.jpeg') center/cover no-repeat;
+  background-blend-mode: darken;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #eee;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.tab svg {
+  width: 20px;
+  height: 20px;
+}
+
+.tab.active {
+  background-color: #3f3d56;
+  color: white;
+}
+
+.tab.active svg {
+  stroke: white;
+}
+
+.contact-content {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.contact-content.active {
+  display: block;
+}
+
+.main__btn {
+  margin-top: 1rem;
+  background-color: #3f3d56;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  font-weight: bold;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.main__btn:hover {
+  background-color: #5c5980;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

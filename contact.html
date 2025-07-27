@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us - SparkGoods</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="contact.css"/>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <!-- Navigation Bar (same as main page) -->
+  <nav class="navbar">
+    <div class="navbar__container">
+      <a href="index.html" id="navbar__logo">
+        <img src="images/Goods Logo.png" alt="Logo" class="logo-img">
+        <span class="logo-text">SparkGoods</span>
+      </a>
+      <ul class="navbar__menu">
+        <li><a href="index.html" class="navbar__links">Home</a></li>
+        <li><a href="financials.html" class="navbar__links">Financials</a></li>
+        <li><a href="contact.html" class="navbar__links">Reach Us</a></li>
+        <li><a href="index.html#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="contact-hero"> 
+    <h1>Contact SparkGoods</h1>
+    <p>Select your preferred method to reach out:</p> 
+    
+    <div class="tabs">
+      <button class="tab active" data-tab="whatsapp">
+        <i data-lucide="message-circle"></i> WhatsApp
+      </button>
+      <button class="tab" data-tab="email">
+        <i data-lucide="mail"></i> Email
+      </button>
+      <button class="tab" data-tab="instagram">
+        <i data-lucide="instagram"></i> Instagram
+      </button>
+    </div>
+
+    <div id="whatsapp" class="contact-content active">
+      <p>Have a quick question or want to chat? Message us on WhatsApp!</p>
+      <a class="main__btn" href="https://api.whatsapp.com/send?phone=62895330863738" target="_blank">Chat on WhatsApp</a>
+    </div>
+
+    <div id="email" class="contact-content">
+      <p>Prefer to write us? Send an email and we’ll respond shortly!</p>
+      <a class="main__btn" href="mailto:sparkgoods.id@gmail.com">Send Email</a>
+    </div>
+
+    <div id="instagram" class="contact-content">
+      <p>Follow us and send a DM for any inquiries or collaborations!</p>
+      <a class="main__btn" href="https://www.instagram.com/sparkgoods.id/" target="_blank">@sparkgoods.id</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer__container">
+      <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+    </div>
+    <script src="app.js"></script>
+  </footer>
+
+  <script>
+    lucide.createIcons(); // Activate Lucide icons
+
+    const tabs = document.querySelectorAll(".tab");
+    const contents = document.querySelectorAll(".contact-content");
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        contents.forEach(c => c.classList.remove("active"));
+
+        tab.classList.add("active");
+        document.getElementById(tab.dataset.tab).classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
