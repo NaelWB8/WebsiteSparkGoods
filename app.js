@@ -64,3 +64,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   counters.forEach(counter => observer.observe(counter));
 });
+
+// Image Slider Logic
+document.addEventListener('DOMContentLoaded', () => {
+  const sliderBox = document.querySelector('.slider-box');
+  const images = sliderBox.querySelectorAll('img');
+  const leftBtn = document.querySelector('.arrow.left');
+  const rightBtn = document.querySelector('.arrow.right');
+
+  let currentIndex = 0;
+
+  // Sembunyikan semua gambar kecuali yang aktif
+  function showImage(index) {
+    images.forEach((img, i) => {
+      img.style.display = i === index ? 'block' : 'none';
+    });
+  }
+
+  rightBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % images.length;
+    showImage(currentIndex);
+  });
+
+  leftBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    showImage(currentIndex);
+  });
+
+  // Initial setup
+  showImage(currentIndex);
+});
+
