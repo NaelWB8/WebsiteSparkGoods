@@ -10,12 +10,22 @@ body {
   background-color: #525599;
   color: #333;
   line-height: 1.6;
+  font-size: 2rem;
 }
+/* Footer */
+.footer {
+  background: #1f2937;
+  color: #fff;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
 
 /* Navbar */
 .navbar {
   position: fixed;
-  top: 0;
   width: 100%;
   padding: 18px 0;
   z-index: 1000;
@@ -24,7 +34,7 @@ body {
 }
 .navbar.scrolled {
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 4px 4px rgba(0,0,0,0.2);
   padding: 8px 0;
 }
 .navbar__container {
@@ -73,9 +83,8 @@ body {
   transition: 0.3s;
 }
 
-/* Hero */
-.hero {
-  background: rgba(0,0,0,0.3) url('images/Sparkgoods 2.jpeg') center/cover no-repeat;
+/* Hero Index */
+.hero { /*background image di index*/
   background-blend-mode: darken;
   height: 97.5vh;
   display: flex;
@@ -86,22 +95,23 @@ body {
 }
 .hero__content h1 {
   font-size: 3rem;
-  font-weight: 900;
+  font-weight: 900; /*mentok*/
   margin-bottom: -0.5rem;
 }
 .hero__content p {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  margin: 2rem 7rem;
 }
 .main__btn {
   padding: 0.75rem 2.5rem;
   background: #525599;
   color: #fff;
-  border-radius: 50px;
+  border-radius: 50rem;
   font-weight: 300;
   text-decoration: none;
   transition: 0.3s;
 }
+
 .main__btn:hover { background: #2563eb; }
 
 /* Slider */
@@ -121,22 +131,19 @@ body {
   padding: 1rem;
 }
 .slider-box {
-  width: 350px;
-  height: 250px;
-  background: #525599;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
+  transition: transform 0.5s ease-in-out;
   overflow: hidden;
+  width: 100%;
 }
+
 .slider-box img {
   width: 100%;
+  flex-shrink: 0;
   object-fit: cover;
-  border-radius: 8px;
 }
+
 .arrow {
-  background: #525599;
   color: white;
   border: none;
   font-size: 2rem;
@@ -149,7 +156,11 @@ body {
   cursor: pointer;
   transition: 0.3s;
 }
-.arrow:hover { background: #3e3f7d; }
+.arrow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
 
 /* Section Base */
 .section__container {
@@ -321,18 +332,6 @@ body {
   border-radius: 10px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
-
-/* Footer */
-.footer {
-  background: #1f2937;
-  color: #fff;
-  padding: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-  margin-top: 4rem;
-  letter-spacing: 0.5px;
-}
-
 /* Financials Page */
 .financials {
   background: white;
@@ -359,7 +358,14 @@ body {
   font-size: 2.5rem;
   color: white;
   text-align: center;
-  padding: 4rem auto;
+  padding: 4rem auto;body {
+  font-family: 'Kumbh Sans', sans-serif;
+  color: #333;
+  line-height: 1.6;
+  background: url('images/Sparkgoods 2.jpeg') center/cover no-repeat fixed;
+  background-size: cover;
+}
+
 }
 
 .contact-hero p {
@@ -370,14 +376,15 @@ body {
 }
 
 .contact-hero {
-  background: rgba(0,0,0,0.3) url('images/Sparkgoods 2.jpeg') center/cover no-repeat;
+  background: rgba(0,0,0,0.4) url('images/SGSLIDER3.jpeg') center/cover no-repeat;
   background-blend-mode: darken;
-  min-height: 85vh;
+  min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: #fff;
+  padding: 2rem;
 }
 
 .tabs {
@@ -406,7 +413,7 @@ body {
 }
 
 .tab.active {
-  background-color: #3f3d56;
+  background-color: #525599;
   color: white;
 }
 
@@ -425,7 +432,7 @@ body {
 
 .main__btn {
   margin-top: 1rem;
-  background-color: #3f3d56;
+  background-color: #525599;
   color: white;
   padding: 0.8rem 1.5rem;
   font-weight: bold;
@@ -443,3 +450,184 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/*utk hp*/
+
+.hamburger {
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1001; /* Higher than navbar */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  background-color: transparent; /* or a visible bg if desired */
+}
+
+.hamburger .bar {
+  height: 3px;
+  border-radius: 2px;
+  width: 25px;
+  background-color: #fff;
+  margin: 1px 0;
+  transition: all 0.3s ease;
+}
+
+.hamburger .bar.scrolled {
+  background-color: #525599;
+}
+
+/* Animation for 'X' */
+.hamburger.active .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger.active .bar:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .navbar__container {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 1.5rem;
+  }
+
+  .navbar__menu {
+    display: none;
+    flex-direction: column;
+    position: static;
+    background: #a1a5e0;
+    top: 60px;
+    width: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+    z-index: 999;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    margin-top: 1rem;
+  }
+
+  .navbar__menu.active {
+    display: flex;
+    flex-direction: column;
+    top: 100%;
+  }
+
+  .navbar__menu li {
+    margin: 0.5rem 0;
+  }
+
+  .navbar__links {
+    color: white;
+  }
+
+
+  .logo-text {
+    font-size: 1.5rem;
+  }
+
+  /* Hero */
+  .hero__content h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero__content p {
+    font-size: 1.2rem;
+  }
+
+  .main__btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  /* Slider */
+  .slider-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .slider-box {
+    width: 100%;
+    height: 200px;
+  }
+
+  /* Section Text */
+  .section__container h2 {
+    font-size: 2rem;
+  }
+
+  .section__container p {
+    font-size: 1rem;
+  }
+
+  /* Impact Section */
+  .impact-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    padding: 2rem 1rem;
+  }
+
+  .impact-text, .impact-stats, .impact-slider {
+    grid-column: auto;
+    grid-row: auto;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: center;
+  }
+
+  .impact-text h2, .impact-text p {
+    margin-left: 0;
+  }
+
+  .impact-stats {
+    margin-top: 2rem;
+  }
+
+  /* Donate Section */
+  .donate {
+    padding: 2rem 1rem;
+    height: auto;
+  }
+
+  .donate p {
+    padding: 0 1rem;
+  }
+
+  .qris-code {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  /* Contact */
+  .contact-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .contact-hero p {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+
+  /* Tabs */
+  .tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tab {
+    justify-content: center;
+    width: 100%;
+  }
+}

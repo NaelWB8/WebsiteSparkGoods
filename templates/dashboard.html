@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SparkGoods</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar__container">
+            <a href="/" id="navbar__logo">
+                <img src="/static/images/Goods Logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">SparkGoods</span>
+            </a>
+            <ul class="navbar__menu">
+                <li><a href="/" class="navbar__links">Home</a></li>
+                <li><a href="/financials" class="navbar__links">Financials</a></li>
+                <li><a href="/contact" class="navbar__links">Reach Us</a></li>
+                <li><a href="/rewards" class="navbar__links">Rewards</a></li>
+                <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
+                <li><a href="#" class="navbar__links" id="logoutBtn">Logout</a></li>
+                <li><a href="/#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
+            </ul>
+        
+            <div class="hamburger" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- User Profile Section -->
+        <section class="user-profile">
+            <div class="user-header">
+                <div class="user-avatar" id="userAvatar">SG</div>
+                <div class="user-info">
+                    <h2 id="userName">Loading...</h2>
+                    <p id="userEmail">user@example.com</p>
+                </div>
+                <div class="level-badge bronze" id="levelBadge">Bronze</div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Your Progress</span>
+                    <span id="progressText">0/100 points to next level</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Points</h3>
+                    <div class="stat-value" id="totalPoints">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Donations</h3>
+                    <div class="stat-value" id="totalDonations">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Current Level</h3>
+                    <div class="stat-value" id="currentLevel">Bronze</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Badges Section -->
+        <section class="badges-section">
+            <h2 class="section-title">Your Badges</h2>
+            <div class="badges-grid" id="badgesContainer">
+                <!-- Badges will be loaded here -->
+                <div class="badge-card">
+                    <div class="badge-icon">🏆</div>
+                    <div class="badge-name">Loading...</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Donation Form -->
+        <section class="donation-form">
+            <h2 class="section-title">Record New Donation</h2>
+            <form id="donationForm">
+                <div class="form-group">
+                    <label for="donationType">Donation Type</label>
+                    <select id="donationType" required>
+                        <option value="">Select type</option>
+                        <option value="uang">Money Donation</option>
+                        <option value="barang">Goods Donation</option>
+                        <option value="tiktok">TikTok Shop Purchase</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="donationAmount">Amount (Rp)</label>
+                    <input type="number" id="donationAmount" placeholder="100000" required>
+                </div>
+                <button type="submit" class="submit-btn">Submit Donation</button>
+            </form>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer__container">
+            <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Use the user data passed from the backend
+            const userData = {% if user %}{{ user|tojson|safe }}{% else %}null{% endif %};
+            
+            if (!userData) {
+                window.location.href = '/';
+                return;
+            }
+            
+            updateDashboard(userData);
+            setupEventListeners();
+        });
+    
+        function updateDashboard(user) {
+            // Update user info
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+            
+            // Update points and level
+            document.getElementById('totalPoints').textContent = user.points;
+            document.getElementById('currentLevel').textContent = user.level;
+            
+            // Update level badge
+            const levelBadge = document.getElementById('levelBadge');
+            levelBadge.className = 'level-badge ' + user.level.toLowerCase();
+            levelBadge.textContent = user.level;
+            
+            // Update progress bar
+            updateProgressBar(user.points, user.level);
+            
+            // Update badges
+            const badgesContainer = document.getElementById('badgesContainer');
+            if (user.badges && user.badges.length > 0) {
+                badgesContainer.innerHTML = user.badges.map(badge => `
+                    <div class="badge-card">
+                        <div class="badge-icon">🏅</div>
+                        <div class="badge-name">${badge}</div>
+                    </div>
+                `).join('');
+            } else {
+                badgesContainer.innerHTML = `
+                    <div class="badge-card">
+                        <div class="badge-icon">😢</div>
+                        <div class="badge-name">No badges yet</div>
+                    </div>
+                `;
+            }
+        }
+    
+        function updateProgressBar(points, level) {
+            let current, next, nextLevel;
+            
+            switch (level) {
+                case 'Bronze':
+                    current = points;
+                    next = 100;
+                    nextLevel = 'Silver';
+                    break;
+                case 'Silver':
+                    current = points - 100;
+                    next = 400;
+                    nextLevel = 'Gold';
+                    break;
+                case 'Gold':
+                    current = points - 500;
+                    next = 1500;
+                    nextLevel = 'Platinum';
+                    break;
+                case 'Platinum':
+                    current = 100;
+                    next = 100;
+                    nextLevel = 'Platinum';
+                    break;
+            }
+            
+            const percentage = Math.min(100, (current / next) * 100);
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            
+            if (level === 'Platinum') {
+                document.getElementById('progressText').textContent = 'Max level achieved!';
+            } else {
+                document.getElementById('progressText').textContent = 
+                    `${current}/${next} points to ${nextLevel}`;
+            }
+        }
+    
+        function setupEventListeners() {
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        throw new Error('Logout failed');
+                    }
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                    alert('Logout failed. Please try again.');
+                }
+            });
+            
+            // Donation form
+            document.getElementById('donationForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+                
+                try {
+                    const type = document.getElementById('donationType').value;
+                    const amount = parseInt(document.getElementById('donationAmount').value);
+                    
+                    if (!type || !amount) {
+                        throw new Error('Please fill all fields');
+                    }
+                    
+                    const response = await fetch('/api/donate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ type, amount }),
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        alert(`Donation recorded! You earned ${data.points_earned} points.`);
+                        // Refresh user data
+                        const userResponse = await fetch('/api/check-auth', { credentials: 'include' });
+                        const userData = await userResponse.json();
+                        if (userResponse.ok && userData.authenticated) {
+                            updateDashboard(userData.user);
+                        }
+                        document.getElementById('donationForm').reset();
+                    } else {
+                        throw new Error(data.error || 'Donation failed');
+                    }
+                } catch (error) {
+                    alert(error.message);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Donation';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

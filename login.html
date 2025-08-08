@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SparkGoods</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Kumbh Sans', sans-serif;
+            background: linear-gradient(135deg, #525599, #3b82f6);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar__container {
+            display: flex;
+            justify-content: space-between;
+            height: 80px;
+            z-index: 1;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 50px;
+            align-items: center;
+        }
+        
+        #navbar__logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #525599;
+            transition: transform 0.3s ease;
+        }
+        
+        #navbar__logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .navbar__menu {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar__menu li {
+            margin: 0 1rem;
+        }
+        
+        .navbar__links {
+            color: #525599;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .navbar__links:hover {
+            background: rgba(82, 85, 153, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .auth-container {
+            max-width: 450px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .auth-container h2 {
+            color: #525599;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .auth-form input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .auth-form input:focus {
+            outline: none;
+            border-color: #525599;
+            box-shadow: 0 0 0 3px rgba(82, 85, 153, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .auth-form button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #525599, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .auth-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(82, 85, 153, 0.3);
+        }
+        
+        .auth-form button:active {
+            transform: translateY(0);
+        }
+        
+        .auth-link {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+        
+        .auth-link a {
+            color: #525599;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .auth-link a:hover {
+            color: #3b82f6;
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .navbar__container {
+                padding: 0 20px;
+            }
+            
+            .navbar__menu {
+                display: none;
+            }
+            
+            .auth-container {
+                margin: 2rem 1rem;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar__container">
+            <a href="/" id="navbar__logo">
+                <img src="/static/images/Goods Logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">SparkGoods</span>
+            </a>
+            <ul class="navbar__menu">
+                <li><a href="/" class="navbar__links">Home</a></li>
+                <li><a href="/financials" class="navbar__links">Financials</a></li>
+                <li><a href="/contact" class="navbar__links">Reach Us</a></li>
+                <li><a href="/rewards" class="navbar__links">Rewards</a></li>
+                <li><a href="/register" class="navbar__links">Register</a></li>
+                <li><a href="/login" class="navbar__links">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <h2>Welcome Back</h2>
+        <form class="auth-form" id="loginForm">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email Address" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" id="loginBtn">Sign In</button>
+        </form>
+        <div class="auth-link">
+            Don't have an account? <a href="/register">Create one here</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer__container">
+            <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const originalText = loginBtn.textContent;
+            
+            // Show loading state
+            loginBtn.textContent = 'Signing in...';
+            loginBtn.classList.add('loading');
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Save user data to localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Show success message
+                    loginBtn.textContent = 'Success! Redirecting...';
+                    loginBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    throw new Error(data.error || 'Login failed');
+                }
+            } catch (error) {
+                // Reset button state
+                loginBtn.textContent = originalText;
+                loginBtn.classList.remove('loading');
+                loginBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                
+                alert(error.message || 'An error occurred. Please try again.');
+                
+                // Reset button color after 2 seconds
+                setTimeout(() => {
+                    loginBtn.style.background = 'linear-gradient(135deg, #525599, #3b82f6)';
+                }, 2000);
+                
+                console.error('Login error:', error);
+            }
+        });
+
+        // Add input animations
+        document.querySelectorAll('.auth-form input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

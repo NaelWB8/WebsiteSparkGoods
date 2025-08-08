@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - SparkGoods</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar__container">
+            <a href="/" id="navbar__logo">
+                <img src="/static/images/Goods Logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">SparkGoods</span>
+            </a>
+            <ul class="navbar__menu">
+              <li><a href="/" class="navbar__links">Home</a></li>
+              <li><a href="/financials" class="navbar__links">Financials</a></li>
+              <li><a href="/contact" class="navbar__links">Reach Us</a></li>
+              <li><a href="/rewards" class="navbar__links">Rewards</a></li>
+              <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
+              <li><a href="#" class="navbar__links" onclick="openAuthModal('register')">Register</a></li>
+              <li><a href="#" class="navbar__links" onclick="openAuthModal('login')">Login</a></li>
+              <li><a href="/#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
+            </ul>  
+      
+            <div class="hamburger" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="rewards-container">
+        <header class="rewards-header">
+            <h1>SparkRewards</h1>
+            <p>Earn points and unlock exclusive badges by contributing to our cause. Your generosity makes a difference!</p>
+        </header>
+        
+        <section>
+            <div class="rewards-grid">
+                <div class="reward-card">
+                    <div class="reward-icon">💰</div>
+                    <h3 class="reward-title">Cash Donations</h3>
+                    <p class="reward-desc">Get 1 point for every Rp10,000 donated</p>
+                    <span class="reward-points">1x Points</span>
+                </div>
+                
+                <div class="reward-card">
+                    <div class="reward-icon">👕</div>
+                    <h3 class="reward-title">Goods Donations</h3>
+                    <p class="reward-desc">Get 1 point for every Rp5,000 worth of goods</p>
+                    <span class="reward-points">2x Points</span>
+                </div>
+                
+                <div class="reward-card">
+                    <div class="reward-icon">🛒</div>
+                    <h3 class="reward-title">TikTok Shop</h3>
+                    <p class="reward-desc">Get 1 point for every Rp10,000 spent</p>
+                    <span class="reward-points">1x Points</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="badges-section">
+            <h2 class="section-title">Your Badges</h2>
+            <div class="badges-grid" id="badgesContainer">
+                <!-- Badges will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer__container">
+            <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/user/badges', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const data = await response.json();
+                updateBadgesDisplay(data.badges);
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/';
+            }
+        });
+
+        function updateBadgesDisplay(userBadges) {
+            const badgesContainer = document.getElementById('badgesContainer');
+            const allBadges = [
+                {
+                    name: 'Pemula Dermawan',
+                    icon: '🌟',
+                    desc: 'Make your first donation',
+                    unlocked: userBadges.includes('Pemula Dermawan')
+                },
+                {
+                    name: 'Multi Kontributor',
+                    icon: '🔄',
+                    desc: 'Donate through multiple channels',
+                    unlocked: userBadges.includes('Multi Kontributor')
+                },
+                {
+                    name: 'Fashion Giver',
+                    icon: '👚',
+                    desc: 'Donate Rp100,000 worth of goods',
+                    unlocked: userBadges.includes('Fashion Giver')
+                },
+                {
+                    name: 'Live Warrior',
+                    icon: '🎥',
+                    desc: 'Donate Rp500,000 through TikTok',
+                    unlocked: userBadges.includes('Live Warrior')
+                },
+                {
+                    name: 'Sultan Dermawan',
+                    icon: '👑',
+                    desc: 'Total donations over Rp2,000,000',
+                    unlocked: userBadges.includes('Sultan Dermawan')
+                }
+            ];
+            
+            badgesContainer.innerHTML = allBadges.map(badge => `
+                <div class="badge-card ${badge.unlocked ? 'unlocked' : 'locked'}">
+                    <div class="badge-icon">${badge.icon}</div>
+                    <h3 class="badge-name">${badge.name}</h3>
+                    <p class="badge-desc">${badge.desc}</p>
+                    <p class="badge-status">${badge.unlocked ? 'UNLOCKED' : 'LOCKED'}</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

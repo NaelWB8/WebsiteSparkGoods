@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SparkGoods</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="static/css/styles.css">
+<body>
+  <nav class="navbar">
+    <div class="navbar__container">
+      <a href="#" id="navbar__logo">
+        <img src="static/images/Goods Logo.png" alt="Logo" class="logo-img">
+        <span class="logo-text">SparkGoods</span>
+      </a>
+          
+      <ul class="navbar__menu">
+        <li><a href="index.html" class="navbar__links">Home</a></li>
+        <li><a href="financials.html" class="navbar__links">Financials</a></li>
+        <li><a href="contact.html" class="navbar__links">Reach Us</a></li>
+        <li><a href="rewards.html" class="navbar__links">Rewards</a></li>
+        <li><a href="register.html" class="navbar__links">Rewards</a></li>
+        <li><a href="login.html" class="navbar__links">Rewards</a></li>
+        <li><a href="index.html#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
+      </ul>
+
+      <div class="hamburger" id="mobile-menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+    </div>
+  </nav>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SparkGoods</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .auth-container h2 {
+            color: #525599;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background: #525599;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .auth-form button:hover {
+            background: #3b82f6;
+        }
+        .auth-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar__container">
+            <a href="index.html" id="navbar__logo">
+                <img src="images/Goods Logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">SparkGoods</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <h2>Create Your Account</h2>
+        <form class="auth-form" id="registerForm">
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+            <button type="submit">Register</button>
+        </form>
+        <div class="auth-link">
+            Already have an account? <a href="login.html">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:5000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Registration successful! Please login.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
