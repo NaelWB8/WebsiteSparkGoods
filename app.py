@@ -1,6 +1,6 @@
-# app.py
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import os
@@ -8,12 +8,17 @@ import requests
 from datetime import datetime
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+# Config DB
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL', 'sqlite:///sparkgoods.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 
-# init DB
+# Aktifkan CORS + credentials
+CORS(app, supports_credentials=True)
+
+# Init DB
 db = SQLAlchemy(app)
 
 # ---------------- MODELS ----------------
@@ -36,7 +41,7 @@ class Donation(db.Model):
     points_earned = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# --------------- HELPERS ----------------
+# ---------------- HELPERS ----------------
 
 
 def login_required(f):
@@ -71,14 +76,21 @@ def get_level(points: int):
 
 
 def calculate_points(donation_type, amount):
-    # rules similar to your frontend rewards.html
     if donation_type == 'uang':
-        return max(0, amount // 10000)  # 1 point per 10k
+        return max(0, amount // 10000)
     if donation_type == 'barang':
-        return max(0, amount // 5000)   # 1 point per 5k
+        return max(0, amount // 5000)
     if donation_type == 'tiktok':
         return max(0, amount // 10000)
     return 0
+
+
+def parse_request_data():
+    """Ambil data dari JSON atau FormData"""
+    data = request.get_json(silent=True)
+    if not data:
+        data = request.form.to_dict()
+    return data
 
 # ---------------- ROUTES ----------------
 
@@ -97,7 +109,6 @@ def dashboard():
 
 @app.route('/leaderboard')
 def leaderboard_view():
-    # static page that will fetch /api/leaderboard from frontend JS
     return render_template('leaderboard.html')
 
 
@@ -108,12 +119,14 @@ def admin():
     users = User.query.order_by(User.points.desc()).all()
     return render_template('admin.html', donations=donations, users=users)
 
-# ---------------- API - AUTH ----------------
+# ---------------- API AUTH ----------------
 
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
-    data = request.get_json(force=True)
+    data = parse_request_data()
+    print("Register data:", data)  # debug
+
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
@@ -129,12 +142,15 @@ def api_register():
     db.session.add(user)
     db.session.commit()
     session['user_id'] = user.id
+
     return jsonify({'message': 'Registered', 'user': {'name': user.name, 'email': user.email}})
 
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    data = request.get_json(force=True)
+    data = parse_request_data()
+    print("Login data:", data)  # debug
+
     email = data.get('email')
     password = data.get('password')
 
@@ -152,11 +168,11 @@ def api_login():
 @app.route('/api/check-auth')
 def api_check_auth():
     if 'user_id' not in session:
-        return jsonify({'authenticated': False}), 200
+        return jsonify({'authenticated': False})
     user = User.query.get(session['user_id'])
     if not user:
         session.clear()
-        return jsonify({'authenticated': False}), 200
+        return jsonify({'authenticated': False})
 
     return jsonify({
         'authenticated': True,
@@ -176,13 +192,13 @@ def api_logout():
     session.clear()
     return jsonify({'message': 'Logged out'})
 
-# --------------- API - DONATION ----------------
+# ---------------- API DONATION ----------------
 
 
 @app.route('/api/donate', methods=['POST'])
 @login_required
 def api_donate():
-    data = request.get_json(force=True)
+    data = parse_request_data()
     donation_type = data.get('type')
     amount = int(data.get('amount') or 0)
 
@@ -201,7 +217,7 @@ def api_donate():
 
     return jsonify({'message': 'Donation recorded', 'points_earned': points, 'user_points': user.points})
 
-# --------------- API - LEADERBOARD ----------------
+# ---------------- API LEADERBOARD ----------------
 
 
 @app.route('/api/leaderboard')
@@ -210,7 +226,7 @@ def api_leaderboard():
     out = [{'name': u.name, 'points': u.points, 'id': u.id} for u in users]
     return jsonify({'leaderboard': out})
 
-# --------------- API - ADMIN (donation management) ----------------
+# ---------------- ADMIN API ----------------
 
 
 @app.route('/api/admin/donations', methods=['GET'])
@@ -238,7 +254,6 @@ def api_admin_delete_donation(donation_id):
     d = Donation.query.get(donation_id)
     if not d:
         return jsonify({'error': 'Not found'}), 404
-    # roll back points to user
     user = User.query.get(d.user_id)
     if user:
         user.points = max(0, user.points - (d.points_earned or 0))
@@ -246,66 +261,7 @@ def api_admin_delete_donation(donation_id):
     db.session.commit()
     return jsonify({'message': 'Deleted'})
 
-# --------------- API - TIKTOK SYNC (mock + real flow) ----------------
-
-
-@app.route('/api/tiktok-sync', methods=['POST'])
-@admin_required
-def api_tiktok_sync():
-    """
-    This endpoint attempts to fetch orders from TikTok Shop API and record completed purchases as donations.
-    For real usage: set TIKTOK_API_KEY env var and update the URL to the correct TikTok Shop endpoint.
-    """
-    TIKTOK_API_KEY = os.getenv('TIKTOK_API_KEY')
-    if not TIKTOK_API_KEY:
-        return jsonify({'error': 'TIKTOK_API_KEY not configured'}), 500
-
-    headers = {'Authorization': f'Bearer {TIKTOK_API_KEY}'}
-    # Example URL (replace with real official endpoint)
-    url = os.getenv('TIKTOK_ORDERS_URL',
-                    'https://open-api.tiktokglobalshop.com/api/orders')
-
-    try:
-        r = requests.get(url, headers=headers, timeout=15)
-        r.raise_for_status()
-        payload = r.json()
-    except Exception as e:
-        return jsonify({'error': 'Failed to fetch from TikTok', 'detail': str(e)}), 500
-
-    # Example: expect payload['orders'] to be a list of orders
-    orders = payload.get('orders') or payload.get('data') or []
-    processed = 0
-
-    for order in orders:
-        # normalize: try buyer email and total price
-        buyer_email = order.get('buyer_email') or order.get(
-            'buyer', {}).get('email')
-        total_price = int(float(order.get('total_price', 0))) if order.get(
-            'total_price') else int(order.get('total', 0) or 0)
-        status = order.get('status') or order.get('order_status')
-
-        if not buyer_email or not total_price:
-            continue
-        # only count completed orders
-        if str(status).lower() not in ('delivered', 'completed', 'paid'):
-            continue
-
-        user = User.query.filter_by(email=buyer_email).first()
-        if not user:
-            # optionally create a guest user or skip
-            continue
-
-        pts = calculate_points('tiktok', total_price)
-        d = Donation(user_id=user.id, type='tiktok',
-                     amount=total_price, points_earned=pts)
-        user.points += pts
-        db.session.add(d)
-        processed += 1
-
-    db.session.commit()
-    return jsonify({'processed': processed})
-
-# --------------- DB init helper ----------------
+# ---------------- INIT DB ----------------
 
 
 @app.cli.command('init-db')
