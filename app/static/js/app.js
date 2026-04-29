@@ -4,13 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const navMenu = document.querySelector('.navbar__menu');
 
   // Hamburger menu toggle
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-  });
+  if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+    });
+  }
 
   // Navbar scroll effect
   window.addEventListener('scroll', () => {
+    if (!navbar) return;
     if (window.scrollY > 50) {
       navbar.classList.add('scrolled');
     } else {
@@ -63,14 +66,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   counters.forEach(counter => observer.observe(counter));
+
+  document.querySelectorAll('.dashboard-link').forEach(link => {
+    link.addEventListener('click', async (event) => {
+      event.preventDefault();
+      try {
+        const response = await fetch('/api/check-auth', { credentials: 'include' });
+        const data = await response.json();
+        if (data.authenticated) {
+          window.location.href = '/dashboard';
+        } else if (typeof openAuthModal === 'function') {
+          openAuthModal('login');
+        } else {
+          window.location.href = '/';
+        }
+      } catch (error) {
+        window.location.href = '/';
+      }
+    });
+  });
 });
 
 // Image Slider Logic
 document.addEventListener('DOMContentLoaded', () => {
   const sliderBox = document.querySelector('.slider-box');
+  if (!sliderBox) return;
+
   const images = sliderBox.querySelectorAll('img');
   const leftBtn = document.querySelector('.arrow.left');
   const rightBtn = document.querySelector('.arrow.right');
+  if (!leftBtn || !rightBtn || images.length === 0) return;
 
   let currentIndex = 0;
 
@@ -99,13 +124,19 @@ document.addEventListener('DOMContentLoaded', () => {
 // Auth Modal Functions
 function openAuthModal(mode) {
   const modal = document.getElementById('authModal');
+  if (!modal) {
+    window.location.href = '/';
+    return;
+  }
   const title = document.getElementById('modalTitle');
   const submitBtn = document.getElementById('submitBtn');
   const toggleText = document.getElementById('authToggle');
   const nameField = document.getElementById('nameField');
+  const authForm = document.getElementById('authForm');
+  if (!title || !submitBtn || !toggleText || !nameField || !authForm) return;
   
   // Clear previous errors and inputs
-  document.getElementById('authForm').reset();
+  authForm.reset();
   const existingErrors = document.querySelectorAll('.auth-error');
   existingErrors.forEach(error => error.remove());
   
@@ -122,70 +153,75 @@ function openAuthModal(mode) {
   }
   
   modal.style.display = 'block';
-  document.getElementById('authForm').dataset.mode = mode;
+  authForm.dataset.mode = mode;
 }
 
 function closeAuthModal() {
-  document.getElementById('authModal').style.display = 'none';
+  const modal = document.getElementById('authModal');
+  if (modal) modal.style.display = 'none';
 }
 
 function toggleAuthMode() {
-  const currentMode = document.getElementById('authForm').dataset.mode;
+  const authForm = document.getElementById('authForm');
+  if (!authForm) return;
+  const currentMode = authForm.dataset.mode;
   openAuthModal(currentMode === 'login' ? 'register' : 'login');
 }
 
 // Handle form submission
 // Update the auth form submission handler
 // Update the auth form submission handler
-document.getElementById('authForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  const mode = this.dataset.mode;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const name = mode === 'register' ? document.getElementById('name').value : null;
+document.addEventListener('DOMContentLoaded', () => {
+  const authForm = document.getElementById('authForm');
+  if (!authForm) return;
 
-  // Clear previous errors
-  const existingErrors = document.querySelectorAll('.auth-error');
-  existingErrors.forEach(error => error.remove());
+  authForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const mode = this.dataset.mode;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const name = mode === 'register' ? document.getElementById('name').value : null;
 
-  // Add loading state
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Processing...';
+    const existingErrors = document.querySelectorAll('.auth-error');
+    existingErrors.forEach(error => error.remove());
 
-  try {
-      const response = await fetch(`/api/${mode}`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-              email, 
-              password,
-              ...(mode === 'register' && { name }) 
-          }),
-          credentials: 'include'
-      });
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
 
-      const data = await response.json();
+    try {
+        const response = await fetch(`/api/${mode}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                email, 
+                password,
+                ...(mode === 'register' && { name }) 
+            }),
+            credentials: 'include'
+        });
 
-      if (!response.ok) {
-          throw new Error(data.error || 'An error occurred');
-      }
+        const data = await response.json();
 
-      // Success - close modal and redirect to dashboard for both login and register
-      closeAuthModal();
-      window.location.href = '/dashboard';
+        if (!response.ok) {
+            throw new Error(data.error || 'An error occurred');
+        }
 
-  } catch (error) {
-      console.error('Error:', error);
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'auth-error';
-      errorDiv.textContent = error.message;
-      document.getElementById('authForm').prepend(errorDiv);
-  } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = mode === 'login' ? 'Login' : 'Register';
-  }
+        closeAuthModal();
+        window.location.href = '/dashboard';
+
+    } catch (error) {
+        console.error('Error:', error);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'auth-error';
+        errorDiv.textContent = error.message;
+        this.prepend(errorDiv);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = mode === 'login' ? 'Login' : 'Register';
+    }
+  });
 });

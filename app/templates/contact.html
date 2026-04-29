@@ -42,7 +42,8 @@
         <li><a href="/financials" class="navbar__links">Financials</a></li>
         <li><a href="/contact" class="navbar__links">Reach Us</a></li>
         <li><a href="/rewards" class="navbar__links">Rewards</a></li>
-        <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
+        <li><a href="/dashboard" class="navbar__links dashboard-link">Dashboard</a></li>
+        <li><a href="/leaderboard" class="navbar__links">Leaderboard</a></li>
         <li><a href="#" class="navbar__links" onclick="openAuthModal('register')">Register</a></li>
         <li><a href="#" class="navbar__links" onclick="openAuthModal('login')">Login</a></li>
         <li><a href="/#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
@@ -97,7 +98,9 @@
   </footer>
 
   <script>
-    lucide.createIcons(); // Activate Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
 
     const tabs = document.querySelectorAll(".tab");
     const contents = document.querySelectorAll(".contact-content");
@@ -112,5 +115,28 @@
       });
     });
   </script>
+
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAuthModal()">&times;</span>
+      <h2 id="modalTitle">Login</h2>
+      <form id="authForm">
+        <div id="nameField" class="form-group" style="display: none;">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="main__btn" id="submitBtn">Login</button>
+      </form>
+      <p id="authToggle">Don't have an account? <a href="#" onclick="toggleAuthMode()">Register</a></p>
+    </div>
+  </div>
 </body>
 </html>

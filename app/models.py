@@ -13,6 +13,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
+    # Legacy compatibility: older DB schema may still require this column.
+    password = db.Column(db.String(200), nullable=False, default='')
     password_hash = db.Column(db.String(200), nullable=False)
     points = db.Column(db.Integer, default=0)
     tiktok_id = db.Column(db.String(100))

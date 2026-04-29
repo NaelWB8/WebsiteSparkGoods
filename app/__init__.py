@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from sqlalchemy import inspect, text
 from config import Config
 from app.models import db, Badge
 
@@ -36,6 +37,7 @@ def create_app(config_class=Config):
 def initialize_database(app):
     with app.app_context():
         db.create_all()
+        _migrate_legacy_schema()
 
         initial_badges = [
             'Pemula Dermawan',
@@ -50,3 +52,34 @@ def initialize_database(app):
                 db.session.add(Badge(name=badge_name))
 
         db.session.commit()
+
+
+def _migrate_legacy_schema():
+    inspector = inspect(db.engine)
+    table_names = inspector.get_table_names()
+
+    if 'user' in table_names:
+        user_columns = {col['name'] for col in inspector.get_columns('user')}
+        with db.engine.begin() as conn:
+            if 'password_hash' not in user_columns:
+                conn.execute(text(
+                    "ALTER TABLE user ADD COLUMN password_hash VARCHAR(200) DEFAULT ''"))
+            if 'points' not in user_columns:
+                conn.execute(text(
+                    "ALTER TABLE user ADD COLUMN points INTEGER DEFAULT 0"))
+            if 'tiktok_id' not in user_columns:
+                conn.execute(text(
+                    "ALTER TABLE user ADD COLUMN tiktok_id VARCHAR(100)"))
+            if 'level' not in user_columns:
+                conn.execute(text(
+                    "ALTER TABLE user ADD COLUMN level VARCHAR(20) DEFAULT 'Bronze'"))
+
+    if 'donation' in table_names:
+        donation_columns = {col['name'] for col in inspector.get_columns('donation')}
+        with db.engine.begin() as conn:
+            if 'points_earned' not in donation_columns:
+                conn.execute(text(
+                    "ALTER TABLE donation ADD COLUMN points_earned INTEGER DEFAULT 0"))
+            if 'created_at' not in donation_columns:
+                conn.execute(text(
+                    "ALTER TABLE donation ADD COLUMN created_at DATETIME"))

@@ -28,22 +28,42 @@
         </div>
     </nav>
 
-    <main class="leaderboard-container">
-        <section class="leaderboard-header">
-            <h1>Community Leaderboard</h1>
-            <p>Ranked by highest donation amount.</p>
+    <main class="leaderboard-container leaderboard-theme">
+        <section class="leaderboard-hero-banner">
+            <span class="leaderboard-hero-icon">✓</span>
+            <span>SPARKGOODS COMMUNITY IMPACT</span>
+            <span class="leaderboard-hero-arrow">→</span>
         </section>
 
-        <section id="leaderboardGrid" class="leaderboard-grid">
+        <section class="leaderboard-header">
+            <h1>LEADERBOARD</h1>
+        </section>
+
+        <section class="leaderboard-controls">
+            <div class="leaderboard-search-wrap">
+                <input id="leaderboardSearch" type="text" placeholder="SEARCH">
+                <span class="leaderboard-search-icon">⌕</span>
+            </div>
+            <button id="sortRecentBtn" class="leaderboard-pill active">MOST RECENT</button>
+            <button id="sortDonationBtn" class="leaderboard-pill">MOST DONATIONS</button>
+        </section>
+
+        <section id="leaderboardGrid" class="leaderboard-grid leaderboard-list">
             {% for row in leaderboard.entries %}
-            <article class="leaderboard-card {% if row.rank <= 3 %}top-three rank-{{ row.rank }}{% endif %}">
-                <div class="leaderboard-rank">#{{ row.rank }}</div>
-                <div class="leaderboard-content">
+            <article
+                class="leaderboard-card clean-list-card {% if row.rank <= 3 %}top-three rank-{{ row.rank }}{% endif %}"
+                data-name="{{ row.name|lower }}"
+                data-donation="{{ row.donation_total }}"
+                data-joined="{{ row.joined_date or '' }}"
+            >
+                <div class="leaderboard-rank rank-circle">#{{ row.rank }}</div>
+                <div class="leaderboard-content list-content">
                     <h2>{{ row.name }}</h2>
-                    <p>Donations: Rp {{ "{:,}".format(row.donation_total) }}</p>
-                    <p>Reward Points: {{ row.points }}</p>
-                    <p>Badge / Tier: {{ row.level }}</p>
-                    <p>Joined: {{ row.joined_date[:10] if row.joined_date else "-" }}</p>
+                    <p>{{ row.level }} tier • {{ row.points }} pts</p>
+                </div>
+                <div class="leaderboard-metric-group">
+                    <span class="leaderboard-metric-pill">Rp {{ "{:,}".format(row.donation_total) }}</span>
+                    <small>{{ row.joined_date[:10] if row.joined_date else "-" }}</small>
                 </div>
             </article>
             {% endfor %}
@@ -66,24 +86,49 @@
         const leaderboardState = {
             page: {{ leaderboard.page }},
             pages: {{ leaderboard.pages }},
-            hasNext: {{ 'true' if leaderboard.has_next else 'false' }}
+            hasNext: {{ 'true' if leaderboard.has_next else 'false' }},
+            sortBy: 'recent'
         };
 
         function renderCard(row) {
             const topClass = row.rank <= 3 ? `top-three rank-${row.rank}` : '';
             const joined = row.joined_date ? row.joined_date.slice(0, 10) : '-';
             return `
-                <article class="leaderboard-card ${topClass}">
-                    <div class="leaderboard-rank">#${row.rank}</div>
-                    <div class="leaderboard-content">
+                <article class="leaderboard-card clean-list-card ${topClass}" data-name="${(row.name || '').toLowerCase()}" data-donation="${row.donation_total || 0}" data-joined="${row.joined_date || ''}">
+                    <div class="leaderboard-rank rank-circle">#${row.rank}</div>
+                    <div class="leaderboard-content list-content">
                         <h2>${row.name}</h2>
-                        <p>Donations: Rp ${Number(row.donation_total || 0).toLocaleString()}</p>
-                        <p>Reward Points: ${row.points || 0}</p>
-                        <p>Badge / Tier: ${row.level || '-'}</p>
-                        <p>Joined: ${joined}</p>
+                        <p>${row.level || '-'} tier • ${row.points || 0} pts</p>
+                    </div>
+                    <div class="leaderboard-metric-group">
+                        <span class="leaderboard-metric-pill">Rp ${Number(row.donation_total || 0).toLocaleString()}</span>
+                        <small>${joined}</small>
                     </div>
                 </article>
             `;
+        }
+
+        function sortCards(mode) {
+            leaderboardState.sortBy = mode;
+            const grid = document.getElementById('leaderboardGrid');
+            const cards = Array.from(grid.querySelectorAll('.leaderboard-card'));
+            cards.sort((a, b) => {
+                if (mode === 'donation') {
+                    return Number(b.dataset.donation || 0) - Number(a.dataset.donation || 0);
+                }
+                const dateA = new Date(a.dataset.joined || 0).getTime() || 0;
+                const dateB = new Date(b.dataset.joined || 0).getTime() || 0;
+                return dateB - dateA;
+            });
+            cards.forEach(card => grid.appendChild(card));
+        }
+
+        function filterCards(search) {
+            const term = search.trim().toLowerCase();
+            document.querySelectorAll('#leaderboardGrid .leaderboard-card').forEach(card => {
+                const isVisible = !term || (card.dataset.name || '').includes(term);
+                card.style.display = isVisible ? '' : 'none';
+            });
         }
 
         async function loadMore() {
@@ -101,6 +146,7 @@
 
                 const grid = document.getElementById('leaderboardGrid');
                 grid.insertAdjacentHTML('beforeend', data.entries.map(renderCard).join(''));
+                sortCards(leaderboardState.sortBy);
 
                 leaderboardState.page = data.page;
                 leaderboardState.pages = data.pages;
@@ -123,6 +169,26 @@
         if (loadMoreBtn) {
             loadMoreBtn.addEventListener('click', loadMore);
         }
+
+        const searchInput = document.getElementById('leaderboardSearch');
+        const sortRecentBtn = document.getElementById('sortRecentBtn');
+        const sortDonationBtn = document.getElementById('sortDonationBtn');
+
+        if (searchInput) searchInput.addEventListener('input', (e) => filterCards(e.target.value));
+        if (sortRecentBtn && sortDonationBtn) {
+            sortRecentBtn.addEventListener('click', () => {
+                sortRecentBtn.classList.add('active');
+                sortDonationBtn.classList.remove('active');
+                sortCards('recent');
+            });
+            sortDonationBtn.addEventListener('click', () => {
+                sortDonationBtn.classList.add('active');
+                sortRecentBtn.classList.remove('active');
+                sortCards('donation');
+            });
+        }
+        sortCards('recent');
     </script>
+    <script src="/static/js/app.js"></script>
 </body>
 </html>
