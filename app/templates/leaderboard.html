@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - SparkGoods</title>
+    <meta name="description" content="Public SparkGoods leaderboard ranked by total donations and reward points.">
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar__container">
+            <a href="/" id="navbar__logo">
+                <img src="/static/images/Goods Logo.png" alt="Logo" class="logo-img">
+                <span class="logo-text">SparkGoods</span>
+            </a>
+            <ul class="navbar__menu">
+                <li><a href="/" class="navbar__links">Home</a></li>
+                <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
+                <li><a href="/leaderboard" class="navbar__links">Leaderboard</a></li>
+            </ul>
+            <div class="hamburger" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="leaderboard-container">
+        <section class="leaderboard-header">
+            <h1>Community Leaderboard</h1>
+            <p>Ranked by highest donation amount.</p>
+        </section>
+
+        <section id="leaderboardGrid" class="leaderboard-grid">
+            {% for row in leaderboard.entries %}
+            <article class="leaderboard-card {% if row.rank <= 3 %}top-three rank-{{ row.rank }}{% endif %}">
+                <div class="leaderboard-rank">#{{ row.rank }}</div>
+                <div class="leaderboard-content">
+                    <h2>{{ row.name }}</h2>
+                    <p>Donations: Rp {{ "{:,}".format(row.donation_total) }}</p>
+                    <p>Reward Points: {{ row.points }}</p>
+                    <p>Badge / Tier: {{ row.level }}</p>
+                    <p>Joined: {{ row.joined_date[:10] if row.joined_date else "-" }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+
+        <div class="leaderboard-actions">
+            {% if leaderboard.has_next %}
+            <button id="loadMoreBtn" class="submit-btn">Load More</button>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__container">
+            <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const leaderboardState = {
+            page: {{ leaderboard.page }},
+            pages: {{ leaderboard.pages }},
+            hasNext: {{ 'true' if leaderboard.has_next else 'false' }}
+        };
+
+        function renderCard(row) {
+            const topClass = row.rank <= 3 ? `top-three rank-${row.rank}` : '';
+            const joined = row.joined_date ? row.joined_date.slice(0, 10) : '-';
+            return `
+                <article class="leaderboard-card ${topClass}">
+                    <div class="leaderboard-rank">#${row.rank}</div>
+                    <div class="leaderboard-content">
+                        <h2>${row.name}</h2>
+                        <p>Donations: Rp ${Number(row.donation_total || 0).toLocaleString()}</p>
+                        <p>Reward Points: ${row.points || 0}</p>
+                        <p>Badge / Tier: ${row.level || '-'}</p>
+                        <p>Joined: ${joined}</p>
+                    </div>
+                </article>
+            `;
+        }
+
+        async function loadMore() {
+            const btn = document.getElementById('loadMoreBtn');
+            if (!btn || !leaderboardState.hasNext) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+
+            try {
+                const nextPage = leaderboardState.page + 1;
+                const response = await fetch(`/api/leaderboard?page=${nextPage}&per_page=10`);
+                const data = await response.json();
+                if (!response.ok) throw new Error('Failed to load leaderboard');
+
+                const grid = document.getElementById('leaderboardGrid');
+                grid.insertAdjacentHTML('beforeend', data.entries.map(renderCard).join(''));
+
+                leaderboardState.page = data.page;
+                leaderboardState.pages = data.pages;
+                leaderboardState.hasNext = data.has_next;
+
+                if (!leaderboardState.hasNext) {
+                    btn.remove();
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Load More';
+                }
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = 'Load More';
+                alert(error.message);
+            }
+        }
+
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', loadMore);
+        }
+    </script>
+</body>
+</html>

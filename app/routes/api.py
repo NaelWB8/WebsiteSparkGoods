@@ -1,8 +1,19 @@
 from flask import Blueprint, request, jsonify, session
+from hashlib import md5
+from sqlalchemy import func, desc
 from app.models import db, User, Donation
 from app.utils import calculate_level, assign_badges
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+
+def _public_name(name):
+    parts = (name or '').strip().split()
+    if not parts:
+        return 'Anonymous'
+    if len(parts) == 1:
+        return parts[0]
+    return f"{parts[0]} {parts[-1][0]}."
 
 @api_bp.route('/check-auth')
 def check_auth():
@@ -13,14 +24,49 @@ def check_auth():
     if not user:
         return jsonify({'authenticated': False})
 
+    total_donation = db.session.query(func.coalesce(func.sum(Donation.amount), 0)).filter(
+        Donation.user_id == user.id).scalar() or 0
+    first_activity = db.session.query(func.min(Donation.created_at)).filter(
+        Donation.user_id == user.id).scalar()
+
+    leaderboard_rows = db.session.query(
+        User.id,
+        func.coalesce(func.sum(Donation.amount), 0).label('total_donation')
+    ).outerjoin(Donation, Donation.user_id == User.id).group_by(User.id).order_by(
+        desc('total_donation'),
+        User.id.asc()
+    ).all()
+    rank = next((idx for idx, row in enumerate(leaderboard_rows, start=1)
+                 if row.id == user.id), None)
+
+    recent_donations = Donation.query.filter_by(user_id=user.id).order_by(
+        Donation.created_at.desc()).limit(5).all()
+    recent_activity = [
+        {
+            'type': donation.donation_type,
+            'amount': donation.amount,
+            'points_earned': donation.points_earned,
+            'created_at': donation.created_at.isoformat() if donation.created_at else None
+        }
+        for donation in recent_donations
+    ]
+    gravatar_hash = md5(user.email.strip().lower().encode('utf-8')).hexdigest()
+    profile_image = f"https://www.gravatar.com/avatar/{gravatar_hash}?d=identicon&s=160"
+
     return jsonify({
         'authenticated': True,
         'user': {
             'id': user.id,
             'name': user.name,
             'email': user.email,
+            'profile_image': profile_image,
+            'donation_total': total_donation,
+            'account_created': first_activity.isoformat() if first_activity else None,
             'points': user.points,
-            'level': user.level
+            'level': user.level,
+            'rank': rank,
+            'badges': [badge.name for badge in user.badges],
+            'recent_activity': recent_activity
         }
     })
 
@@ -116,7 +162,48 @@ def donate():
     return jsonify({
         'message': 'Donation recorded',
         'points_earned': points,
+        'donation_total': sum(d.amount for d in user.donations),
         'total_points': user.points,
         'level': user.level,
         'badges': [badge.name for badge in user.badges]
+    })
+
+
+@api_bp.route('/leaderboard')
+def get_leaderboard():
+    page = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 10, type=int), 30)
+
+    pagination = db.session.query(
+        User.id,
+        User.name,
+        func.coalesce(func.sum(Donation.amount), 0).label('donation_total'),
+        User.points,
+        User.level,
+        func.min(Donation.created_at).label('joined_date')
+    ).outerjoin(Donation, Donation.user_id == User.id).group_by(
+        User.id, User.name, User.points, User.level
+    ).order_by(
+        desc('donation_total'),
+        User.points.desc(),
+        User.id.asc()
+    ).paginate(page=page, per_page=per_page, error_out=False)
+
+    entries = [
+        {
+            'rank': ((pagination.page - 1) * pagination.per_page) + idx,
+            'name': _public_name(row.name),
+            'donation_total': row.donation_total,
+            'points': row.points,
+            'level': row.level,
+            'joined_date': row.joined_date.isoformat() if row.joined_date else None
+        }
+        for idx, row in enumerate(pagination.items, start=1)
+    ]
+
+    return jsonify({
+        'entries': entries,
+        'page': pagination.page,
+        'pages': pagination.pages,
+        'has_next': pagination.has_next
     })
