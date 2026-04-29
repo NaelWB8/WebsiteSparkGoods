@@ -7,6 +7,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.lucide) lucide.createIcons();
+
+    const tabs = document.querySelectorAll(".tab");
+    const contents = document.querySelectorAll(".contact-content");
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        contents.forEach(c => c.classList.remove("active"));
+
+        tab.classList.add("active");
+        const target = document.getElementById(tab.dataset.tab);
+        if (target) target.classList.add("active");
+      });
+    });
+  });
+</script>
+
 <body>
   <nav class="navbar">
     <div class="navbar__container">
@@ -53,7 +75,7 @@
 
     <div id="whatsapp" class="contact-content active">
       <p>Have a quick question or want to chat? Message us on WhatsApp!</p>
-      <a class="main__btn" href="https://api.whatsapp.com/send?phone=62895330863738" target="_blank">Chat on WhatsApp</a>
+      <a class="main__btn" href="https://wa.me/62895330863738" target="_blank" rel="noopener">Chat on WhatsApp</a>
     </div>
 
     <div id="email" class="contact-content">
@@ -69,7 +91,7 @@
 
   <footer class="footer">
     <div class="footer__container">
-      <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+      <p>&copy; 2026 SparkGoods. All rights reserved.</p>
     </div>
     <script src="/static/js/app.js"></script>
   </footer>
