@@ -17,8 +17,14 @@
             </a>
             <ul class="navbar__menu">
                 <li><a href="/" class="navbar__links">Home</a></li>
+                <li><a href="/financials" class="navbar__links">Financials</a></li>
+                <li><a href="/contact" class="navbar__links">Reach Us</a></li>
+                <li><a href="/rewards" class="navbar__links">Rewards</a></li>
                 <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
                 <li><a href="/leaderboard" class="navbar__links">Leaderboard</a></li>
+                <li><a href="#" class="navbar__links" onclick="openAuthModal('register')">Register</a></li>
+                <li><a href="#" class="navbar__links" onclick="openAuthModal('login')">Login</a></li>
+                <li><a href="/#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
             </ul>
             <div class="hamburger" id="mobile-menu">
                 <span class="bar"></span>
@@ -27,6 +33,14 @@
             </div>
         </div>
     </nav>
+
+    <header class="hero" id="leaderboard-hero"
+    style="background: rgba(0,0,0,0.4) url('/static/images/Sparkgoods 2.jpeg') center/cover no-repeat; background-blend-mode: darken;">
+    <div class="hero__content">
+        <h1>Leaderboard</h1>
+        <p>See how you stack up against other community members.</p>
+    </div>
+    </header>
 
     <main class="leaderboard-container leaderboard-theme">
         <section class="leaderboard-hero-banner">
