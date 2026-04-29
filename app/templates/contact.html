@@ -7,6 +7,41 @@
   <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+<script>
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+
+  const tabs = document.querySelectorAll(".tab");
+  const contents = document.querySelectorAll(".contact-content");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
+
+      tab.classList.add("active");
+      const target = document.getElementById(tab.dataset.tab);
+      if (target) target.classList.add("active");
+    });
+  });
+
+  // Make sure CTA buttons always trigger expected action
+  const waBtn = document.querySelector('#whatsapp .main__btn');
+  const emailBtn = document.querySelector('#email .main__btn');
+
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+      window.open('https://api.whatsapp.com/send?phone=62895330863738', '_blank');
+    });
+  }
+
+  if (emailBtn) {
+    emailBtn.addEventListener('click', () => {
+      window.location.href = 'mailto:sparkgoods.id@gmail.com';
+    });
+  }
+</script>
 <body>
   <nav class="navbar">
     <div class="navbar__container">
@@ -69,7 +104,7 @@
 
   <footer class="footer">
     <div class="footer__container">
-      <p>&copy; 2025 SparkGoods. All rights reserved.</p>
+      <p>&copy; 2026 SparkGoods. All rights reserved.</p>
     </div>
     <script src="/static/js/app.js"></script>
   </footer>
