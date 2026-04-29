@@ -1,10 +1,10 @@
-echo $SHELL
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - SparkGoods</title>
+    <title>User Dashboard - SparkGoods</title>
+    <meta name="description" content="Your SparkGoods dashboard with profile, donations, rewards, rank, and recent activity.">
     <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
@@ -21,6 +21,7 @@ echo $SHELL
                 <li><a href="/contact" class="navbar__links">Reach Us</a></li>
                 <li><a href="/rewards" class="navbar__links">Rewards</a></li>
                 <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
+                <li><a href="/leaderboard" class="navbar__links">Leaderboard</a></li>
                 <li><a href="#" class="navbar__links" id="logoutBtn">Logout</a></li>
                 <li><a href="/#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
             </ul>
@@ -37,10 +38,11 @@ echo $SHELL
         <!-- User Profile Section -->
         <section class="user-profile">
             <div class="user-header">
-                <div class="user-avatar" id="userAvatar">SG</div>
+                <img class="user-avatar" id="userAvatarImage" src="" alt="Profile image">
                 <div class="user-info">
-                    <h2 id="userName">Loading...</h2>
+                    <h2 id="userName">Welcome, loading...</h2>
                     <p id="userEmail">user@example.com</p>
+                    <p id="accountCreated">Joined: -</p>
                 </div>
                 <div class="level-badge bronze" id="levelBadge">Bronze</div>
             </div>
@@ -61,8 +63,12 @@ echo $SHELL
                     <div class="stat-value" id="totalPoints">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Total Donations</h3>
+                    <h3>Total Donations (Rp)</h3>
                     <div class="stat-value" id="totalDonations">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Rank</h3>
+                    <div class="stat-value" id="currentRank">-</div>
                 </div>
                 <div class="stat-card">
                     <h3>Current Level</h3>
@@ -73,13 +79,20 @@ echo $SHELL
         
         <!-- Badges Section -->
         <section class="badges-section">
-            <h2 class="section-title">Your Badges</h2>
+            <h2 class="section-title">Reward Points & Badges</h2>
             <div class="badges-grid" id="badgesContainer">
                 <!-- Badges will be loaded here -->
                 <div class="badge-card">
                     <div class="badge-icon">🏆</div>
                     <div class="badge-name">Loading...</div>
                 </div>
+            </div>
+        </section>
+
+        <section class="badges-section">
+            <h2 class="section-title">Recent Activity</h2>
+            <div id="recentActivity" class="activity-list">
+                <div class="badge-card">No recent activity yet.</div>
             </div>
         </section>
         
@@ -128,12 +141,16 @@ echo $SHELL
     
         function updateDashboard(user) {
             // Update user info
-            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userName').textContent = `Welcome, ${user.name}`;
             document.getElementById('userEmail').textContent = user.email;
-            document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+            document.getElementById('userAvatarImage').src = user.profile_image || '';
+            document.getElementById('userAvatarImage').alt = `${user.name} profile image`;
+            document.getElementById('accountCreated').textContent = `Joined: ${formatDate(user.account_created)}`;
             
             // Update points and level
-            document.getElementById('totalPoints').textContent = user.points;
+            document.getElementById('totalPoints').textContent = (user.points ?? 0).toLocaleString();
+            document.getElementById('totalDonations').textContent = (user.donation_total ?? 0).toLocaleString();
+            document.getElementById('currentRank').textContent = user.rank ? `#${user.rank}` : '-';
             document.getElementById('currentLevel').textContent = user.level;
             
             // Update level badge
@@ -161,6 +178,30 @@ echo $SHELL
                     </div>
                 `;
             }
+
+            const activityContainer = document.getElementById('recentActivity');
+            if (user.recent_activity && user.recent_activity.length > 0) {
+                activityContainer.innerHTML = user.recent_activity.map(activity => `
+                    <div class="badge-card activity-card">
+                        <div><strong>${activity.type}</strong> donation</div>
+                        <div>Rp ${Number(activity.amount || 0).toLocaleString()} • +${activity.points_earned || 0} pts</div>
+                        <div>${formatDate(activity.created_at)}</div>
+                    </div>
+                `).join('');
+            } else {
+                activityContainer.innerHTML = `<div class="badge-card">No recent activity yet.</div>`;
+            }
+        }
+
+        function formatDate(dateValue) {
+            if (!dateValue) return '-';
+            const date = new Date(dateValue);
+            if (Number.isNaN(date.getTime())) return '-';
+            return new Intl.DateTimeFormat('en-US', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            }).format(date);
         }
     
         function updateProgressBar(points, level) {
