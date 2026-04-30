@@ -471,6 +471,13 @@ body {
   position: relative;
 }
 
+.modal-content .main__btn {
+  display: block;
+  width: fit-content;
+  margin: 16px auto 0;
+  text-align: center;
+}
+
 .close {
   position: absolute;
   right: 20px;
