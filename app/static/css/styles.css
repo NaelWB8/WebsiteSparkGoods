@@ -25,9 +25,12 @@ body {
 /* Navbar */
 .navbar {
   position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   padding: 18px 0;
-  z-index: 1000;
+  z-index: 9999;
   background: transparent;
   transition: all 0.4s ease;
 }
@@ -523,8 +526,8 @@ body {
 /* ==================== */
 .dashboard-container {
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 2rem;
+  margin: 0 auto;
+  padding: 6.3rem 2rem 2rem;
 }
 
 .user-profile {
@@ -532,7 +535,9 @@ body {
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  margin-bottom: 2rem;
+  margin-bottom: 2rem 0;
+  position: static;
+  z-index: auto;
 }
 
 .user-header {

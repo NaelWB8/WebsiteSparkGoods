@@ -22,8 +22,13 @@
                 <li><a href="/rewards" class="navbar__links">Rewards</a></li>
                 <li><a href="/dashboard" class="navbar__links">Dashboard</a></li>
                 <li><a href="/leaderboard" class="navbar__links">Leaderboard</a></li>
-                <li><a href="#" class="navbar__links" onclick="openAuthModal('register')">Register</a></li>
-                <li><a href="#" class="navbar__links" onclick="openAuthModal('login')">Login</a></li>
+                <!-- Guest-only -->
+                <li id="navAuthRegister"><a href="#" class="navbar__links" onclick="openAuthModal('register')">Register</a></li>
+                <li id="navAuthLogin"><a href="#" class="navbar__links" onclick="openAuthModal('login')">Login</a></li>
+                <!-- Authed-only -->
+                <li id="navAuthLogout" style="display:none;">
+                <a href="#" class="navbar__links" id="logoutBtn">Logout</a>
+                </li>
                 <li><a href="/#donate" class="navbar__links" id="donate__navbar">Donate</a></li>
             </ul>
             <div class="hamburger" id="mobile-menu">

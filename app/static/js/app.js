@@ -132,6 +132,7 @@ function openAuthModal(mode) {
   const submitBtn = document.getElementById('submitBtn');
   const toggleText = document.getElementById('authToggle');
   const nameField = document.getElementById('nameField');
+  const nameInput = document.getElementById('name');
   const authForm = document.getElementById('authForm');
   if (!title || !submitBtn || !toggleText || !nameField || !authForm) return;
   
@@ -145,11 +146,22 @@ function openAuthModal(mode) {
       submitBtn.textContent = 'Login';
       toggleText.innerHTML = 'Don\'t have an account? <a href="#" onclick="toggleAuthMode()">Register</a>';
       nameField.style.display = 'none';
+
+      if (nameInput) {
+        nameInput.disabled = true;
+        nameInput.required = false;
+        nameInput.value = '';
+      }
   } else {
       title.textContent = 'Register';
       submitBtn.textContent = 'Register';
       toggleText.innerHTML = 'Already have an account? <a href="#" onclick="toggleAuthMode()">Login</a>';
       nameField.style.display = 'block';
+
+      if (nameInput) {
+        nameInput.disabled = false;
+        nameInput.required = true;
+      }
   }
   
   modal.style.display = 'block';
@@ -172,13 +184,41 @@ function toggleAuthMode() {
 // Update the auth form submission handler
 // Update the auth form submission handler
 document.addEventListener('DOMContentLoaded', () => {
+  async function syncNavbarAuthState() {
+    const reg = document.getElementById('navAuthRegister');
+    const log = document.getElementById('navAuthLogin');
+    const out = document.getElementById('navAuthLogout');
+    try {
+      const res = await fetch('/api/check-auth', { credentials: 'include' });
+      const data = await res.json();
+      const authed = !!data.authenticated;
+      if (reg) reg.style.display = authed ? 'none' : '';
+      if (log) log.style.display = authed ? 'none' : '';
+      if (out) out.style.display = authed ? '' : 'none';
+    } catch {
+      if (reg) reg.style.display = '';
+      if (log) log.style.display = '';
+      if (out) out.style.display = 'none';
+    }
+  }
+  syncNavbarAuthState();
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      await syncNavbarAuthState();
+      window.location.href = '/';
+    });
+  }
   const authForm = document.getElementById('authForm');
   if (!authForm) return;
 
   authForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const mode = this.dataset.mode;
+    const mode = this.dataset.mode || 'login';
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const name = mode === 'register' ? document.getElementById('name').value : null;
@@ -225,3 +265,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
